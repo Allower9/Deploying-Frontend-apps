@@ -2,7 +2,7 @@ name: React App Deployment (Multi-Server)
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 env:
   DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/react-app
@@ -11,18 +11,24 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.build_metadata.outputs.image_tag }}
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Login to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-    - name: Build and push Docker image
+    - name: Docker Hub Login
       run: |
-        docker build -t ${{ env.DOCKER_IMAGE }}:latest .
-        docker push ${{ env.DOCKER_IMAGE }}:latest
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Build Docker image
+      id: build_metadata
+      run: |
+        TAG=$(date +%Y%m%d-%H%M%S)
+        docker build -t ${{ env.DOCKER_IMAGE }}:$TAG .
+        docker push ${{ env.DOCKER_IMAGE }}:$TAG
+        echo "image_tag=$TAG" >> $GITHUB_OUTPUT
 
   deploy:
     needs: build
@@ -30,22 +36,39 @@ jobs:
     strategy:
       matrix:
         server: [1, 2]
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
 
-    - name: Deploy to server ${{ matrix.server }}
+    - name: Verify server connectivity
       run: |
         SERVER_IP=${{ matrix.server == 1 && secrets.PROD_SERVER_IP_1 || secrets.PROD_SERVER_IP_2 }}
-        ssh -o StrictHostKeyChecking=no root@$SERVER_IP << 'EOF'
-          cd ${{ env.DEPLOY_PATH }}
+        ping -c 2 $SERVER_IP || exit 1
+        ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+
+    - name: Deploy to server ${{ matrix.server }}
+      env:
+        SERVER_IP: ${{ matrix.server == 1 && secrets.PROD_SERVER_IP_1 || secrets.PROD_SERVER_IP_2 }}
+        IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+      run: |
+        ssh -o LogLevel=ERROR -o StrictHostKeyChecking=no root@$SERVER_IP /bin/bash <<DEPLOY_SCRIPT
+          set -euo pipefail
+          cd $DEPLOY_PATH
+          
+          echo "Updating Docker image to tag: $IMAGE_TAG"
+          sed -i "s|image:.*|image: $DOCKER_IMAGE:$IMAGE_TAG|" docker-compose.yml
+          
           docker-compose pull
-          docker-compose up -d
-          echo "Deployed to $(hostname)"
+          docker-compose up -d --force-recreate
+          
+          echo "Verifying deployment:"
           docker ps
-        EOF
+          curl -sSf http://localhost:80 > /dev/null || {
+            echo "Health check failed!"
+            exit 1
+          }
+          echo "Deployment successful on \$(hostname)"
+DEPLOY_SCRIPT
