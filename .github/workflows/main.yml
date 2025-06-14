@@ -1,84 +1,51 @@
-
-name: CI/CD Pipeline with Load Balancer
+name: React App Deployment (Multi-Server)
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/react-app
+  DEPLOY_PATH: /home/user1/Deploying-Frontend-apps
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm run build
-
-    - name: Validate HTML
+    - name: Build and push Docker image
       run: |
-        sudo apt-get install -y tidy
-        tidy -q -e index.html || echo "HTML validation failed! Fix markup errors."
+        docker build -t ${{ env.DOCKER_IMAGE }}:latest .
+        docker push ${{ env.DOCKER_IMAGE }}:latest
 
-  build-and-deploy:
-    needs: test
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        server: [1, 2]
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-    - name: Build and push frontend
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/react-app:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/react-app:latest
 
     - name: Setup SSH
       uses: webfactory/ssh-agent@v0.7.0
       with:
         ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
 
-    - name: Deploy to Server 1
+    - name: Deploy to server ${{ matrix.server }}
       run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yaml root@${{ secrets.PROD_SERVER_IP_1 }}:/root/app/
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
-          cd /root/app
-          docker-compose down
-          docker pull ${{ secrets.DOCKER_USERNAME }}/react-app:latest
+        SERVER_IP=${{ matrix.server == 1 && secrets.PROD_SERVER_IP_1 || secrets.PROD_SERVER_IP_2 }}
+        ssh -o StrictHostKeyChecking=no root@$SERVER_IP << 'EOF'
+          cd ${{ env.DEPLOY_PATH }}
+          docker-compose pull
           docker-compose up -d
-          echo "Deployment to Server 1 completed!"
+          echo "Deployed to $(hostname)"
           docker ps
         EOF
-
-    - name: Deploy to Server 2
-      run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yaml root@${{ secrets.PROD_SERVER_IP_2 }}:/root/app/
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_2 }} << 'EOF'
-          cd /root/app
-          docker-compose down
-          docker pull ${{ secrets.DOCKER_USERNAME }}/react-app:latest
-          docker-compose up -d
-          echo "Deployment to Server 2 completed!"
-          docker ps
-        EOF
-
-    - name: Update Load Balancer
-      run: |
-        # Add your load balancer update commands here
-        # For example, if using Nginx as LB:
-        scp -o StrictHostKeyChecking=no nginx-load-balancer.conf root@${{ secrets.LB_SERVER_IP }}:/etc/nginx/conf.d/
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.LB_SERVER_IP }} "nginx -t && systemctl reload nginx"
-        echo "Load balancer configuration updated"
