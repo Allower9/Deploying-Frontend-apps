@@ -53,7 +53,7 @@ jobs:
 
     - name: Deploy to Server 1
       run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yml root@${{ secrets.PROD_SERVER_IP_1 }}:/root/app/
+        scp -o StrictHostKeyChecking=no docker-compose.yaml root@${{ secrets.PROD_SERVER_IP_1 }}:/root/app/
         ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
           cd /root/app
           docker-compose down
@@ -65,7 +65,7 @@ jobs:
 
     - name: Deploy to Server 2
       run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yml root@${{ secrets.PROD_SERVER_IP_2 }}:/root/app/
+        scp -o StrictHostKeyChecking=no docker-compose.yaml root@${{ secrets.PROD_SERVER_IP_2 }}:/root/app/
         ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_2 }} << 'EOF'
           cd /root/app
           docker-compose down
