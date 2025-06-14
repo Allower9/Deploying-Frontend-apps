@@ -2,13 +2,22 @@ version: '3.8'
 
 services:
   react-app:
-    image: ${DOCKER_USERNAME}/react-app:latest
-    container_name: react-app
-    restart: always
+    build: .
     ports:
-      - "3000:80"  # Измените порт если нужно
+      - "80:80"
+    restart: unless-stopped
+    volumes:
+      - ./dist:/var/www/dist  # Для разработки (монтирование локальной папки)
+      # Для production используйте:
+      # - react-static:/var/www/dist
+    environment:
+      - NODE_ENV=production
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
+
+# Раскомментируйте для production:
+# volumes:
+#   react-static:
