@@ -5,18 +5,12 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Ваши шаги тестирования здесь
-
   build-and-deploy:
-    needs: test
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        server: [1, 2]
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -34,26 +28,36 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
 
-    - name: Deploy to Server 1
+    - name: Verify SSH connection to server ${{ matrix.server }}
       run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yaml root@${{ secrets.PROD_SERVER_IP_1 }}:/home/user1/Deploying-Frontend-apps/
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
-          cd /home/user1/Deploying-Frontend-apps
-          docker-compose down
-          docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          docker-compose up -d
-          echo "Deployment completed on Server 1!"
-          docker ps
-        EOF
+        SERVER_IP=${{ matrix.server == 1 && secrets.PROD_SERVER_IP_1 || secrets.PROD_SERVER_IP_2 }}
+        echo "Testing connection to $SERVER_IP..."
+        nc -zv -w 5 $SERVER_IP 22 || {
+          echo "::error::Cannot connect to server ${{ matrix.server }} ($SERVER_IP) on port 22"
+          exit 1
+        }
+        ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
 
-    - name: Deploy to Server 2
+    - name: Deploy to server ${{ matrix.server }}
       run: |
-        scp -o StrictHostKeyChecking=no docker-compose.yaml root@${{ secrets.PROD_SERVER_IP_2 }}:/home/user1/Deploying-Frontend-apps/
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_2 }} << 'EOF'
+        SERVER_IP=${{ matrix.server == 1 && secrets.PROD_SERVER_IP_1 || secrets.PROD_SERVER_IP_2 }}
+        echo "Deploying to server ${{ matrix.server }} ($SERVER_IP)..."
+        
+        # Копируем compose-файл с правильным именем
+        scp -o ConnectTimeout=10 -o StrictHostKeyChecking=no docker-compose.yaml root@$SERVER_IP:/home/user1/Deploying-Frontend-apps/ || {
+          echo "::error::Failed to copy files to server ${{ matrix.server }}"
+          exit 1
+        }
+        
+        ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no root@$SERVER_IP << 'EOF'
+          set -e
           cd /home/user1/Deploying-Frontend-apps
-          docker-compose down
+          echo "Stopping existing containers..."
+          docker-compose down || true
+          echo "Pulling new image..."
           docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+          echo "Starting containers..."
           docker-compose up -d
-          echo "Deployment completed on Server 2!"
+          echo "Deployment completed on $(hostname)!"
           docker ps
         EOF
