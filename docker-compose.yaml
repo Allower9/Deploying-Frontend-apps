@@ -1,31 +1,13 @@
 version: '3.8'
 
 services:
-  frontend:
-    build: .
-    container_name: react-app
+  react-app:
+    image: ${DOCKER_USERNAME}/react-app:latest
     ports:
-      - "80:80"
+      - "3000:80"  # Разные порты на разных серверах (3000/3001)
     volumes:
-      - /etc/nginx:/etc/nginx:ro  # Монтируем всю конфигурацию Nginx только для чтения
-      - static_volume:/var/www/dist  # Используем именованный том для статики
+      - /etc/nginx:/etc/nginx:ro
+      - /var/www/dist:/var/www/dist
     restart: unless-stopped
-    networks:
-      - frontend-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-
-volumes:
-  static_volume:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: /var/www/dist  # Привязываем к существующему пути
-
-networks:
-  frontend-network:
-    driver: bridge
