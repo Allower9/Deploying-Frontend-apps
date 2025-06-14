@@ -1,23 +1,31 @@
 version: '3.8'
 
 services:
-  react-app:
+  frontend:
     build: .
+    container_name: react-app
     ports:
       - "80:80"
-    restart: unless-stopped
     volumes:
-      - ./dist:/var/www/dist  # Для разработки (монтирование локальной папки)
-      # Для production используйте:
-      # - react-static:/var/www/dist
-    environment:
-      - NODE_ENV=production
+      - /etc/nginx:/etc/nginx:ro  # Монтируем всю конфигурацию Nginx только для чтения
+      - static_volume:/var/www/dist  # Используем именованный том для статики
+    restart: unless-stopped
+    networks:
+      - frontend-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
       timeout: 5s
       retries: 3
 
-# Раскомментируйте для production:
-# volumes:
-#   react-static:
+volumes:
+  static_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: /var/www/dist  # Привязываем к существующему пути
+
+networks:
+  frontend-network:
+    driver: bridge
