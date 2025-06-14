@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  react-app:
+    image: ${DOCKER_USERNAME}/react-app:latest
+    container_name: react-app
+    restart: always
+    ports:
+      - "3000:80"  # Измените порт если нужно
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
