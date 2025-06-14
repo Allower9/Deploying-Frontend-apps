@@ -71,4 +71,3 @@ jobs:
             exit 1
           }
           echo "Deployment successful on \$(hostname)"
-DEPLOY_SCRIPT
