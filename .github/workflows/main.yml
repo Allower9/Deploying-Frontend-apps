@@ -48,11 +48,11 @@ jobs:
         run: |
           scp -o StrictHostKeyChecking=no ./docker-compose.yaml root@${{ secrets.PROD_SERVER_IP }}:/home/user1/Deploying-Frontend-apps
           ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP }} << 'EOF'
-          cd /home/user1/Deploying-Frontend-apps
-          docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          docker stop frontend || true
-          docker rm frontend || true
-          docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          echo "Deployment completed!"
-          docker ps
+            cd /home/user1/Deploying-Frontend-apps
+            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            docker stop frontend || true
+            docker rm frontend || true
+            docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            echo "Deployment completed!"
+            docker ps
           EOF
