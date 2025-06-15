@@ -56,7 +56,6 @@ jobs:
             sudo git pull
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             sudo docker stop frontend || true
-            sudo docker rm frontend || true
             sudo docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             echo "Deployment completed!"
             sudo docker ps
