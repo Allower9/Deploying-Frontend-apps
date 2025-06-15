@@ -1,47 +1,32 @@
-name: CI/CD Frontend
+name: Deploy Frontend App
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main  # или другая ветка, по которой триггерить деплой
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest .
 
-    - name: Build and push frontend image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+      - name: Push image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-
-    - name: Deploy to first production server
-      run: |
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
-          cd /root/app
-          docker-compose -f docker-compose.yaml down
-          docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          docker-compose -f docker-compose.yaml up -d
-        EOF
-
-    - name: Deploy to second production server
-      run: |
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP_2 }} << 'EOF'
-          cd /root/app
-          docker-compose -f docker-compose.yaml down
-          docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-          docker-compose -f docker-compose.yaml up -d
-        EOF
+      - name: Deploy to production server
+        run: |
+          ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
+            cd /home/user1/Deploying-Frontend-apps
+            sudo docker-compose down
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sudo docker-compose up -d
+          EOF
