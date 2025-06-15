@@ -53,6 +53,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP }} << 'EOF'
             cd /home/user1/Deploying-Frontend-apps
+            sudo git pull
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             sudo docker stop frontend || true
             sudo docker rm frontend || true
