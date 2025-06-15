@@ -1,4 +1,4 @@
-name: Deploy React Frontend---
+name: Deploy React Frontend----
 
 on:
   push:
