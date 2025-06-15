@@ -13,7 +13,7 @@ FROM nginx:alpine
 
 # Копируем конфиг nginx
 COPY nginx/frontend.conf /etc/nginx/conf.d/default.conf
-COPY nginx/nginx.conf /etc/nginx
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 # Копируем собранный frontend прямо в html-папку nginx
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
