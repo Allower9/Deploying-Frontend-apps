@@ -43,14 +43,16 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
 
-      - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-            docker stop frontend || true
-            docker rm frontend || true
-            docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+     
+      - name: Deploy
+        run: |
+          scp -o StrictHostKeyChecking=no ./docker-compose.yaml root@${{ secrets.PROD_SERVER_IP }}:/home/user1/Deploying-Frontend-apps
+          ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP }} << 'EOF'
+          cd /home/user1/Deploying-Frontend-apps
+          docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+          docker stop frontend || true
+          docker rm frontend || true
+          docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+          echo "Deployment completed!"
+          docker ps
+          EOF
