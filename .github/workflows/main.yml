@@ -53,10 +53,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP }} << 'EOF'
             cd /home/user1/Deploying-Frontend-apps
-            docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-            docker stop frontend || true
-            docker rm frontend || true
-            docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sudo docker stop frontend || true
+            sudo docker rm frontend || true
+            sudo docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             echo "Deployment completed!"
-            docker ps
+            sudo docker ps
           EOF
