@@ -11,6 +11,9 @@ RUN npm run build
 # Stage 2: Production image
 FROM nginx:alpine
 
+# Копируем конфиг nginx
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+
 # Копируем собранный frontend прямо в html-папку nginx
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
