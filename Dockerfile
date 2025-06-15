@@ -12,7 +12,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Копируем конфиг nginx
-COPY nginx/nginx.conf /etc/nginx/conf.d/frontend.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Копируем собранный frontend прямо в html-папку nginx
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
