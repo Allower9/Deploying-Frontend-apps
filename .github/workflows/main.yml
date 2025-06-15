@@ -51,7 +51,7 @@ jobs:
      
       - name: Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.PROD_SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP }} << 'EOF'
             cd /home/user1/Deploying-Frontend-apps
             docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
             docker stop frontend || true
