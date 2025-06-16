@@ -44,15 +44,17 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
           
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+      
 
   deploy-server-1:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+    
       - name: Deploy
         run: |
           ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
@@ -69,6 +71,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
       - name: Deploy-2
         run: |
             ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP_2 }} << 'EOF'
