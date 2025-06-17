@@ -18,7 +18,7 @@
 - **Nginx** (сейчас не используется)
 
 ### Хостинг
-- **Yandex Cloud** (yandex.ru)
+- **Yandex Cloud** 
 - Домен: **allower.ru**
 - **Network Load Balancer** → (в разработке переход на L7)
 
