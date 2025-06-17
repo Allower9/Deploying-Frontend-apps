@@ -66,7 +66,8 @@ https://github.com/user-attachments/assets/b5736c37-ee74-4067-913c-683c92184fa9
 Добавлена запись типа A с IPv4 Load Balancer
 
 11. Результат
-https://github.com/user-attachments/assets/641db5c1-fc53-4974-b549-1b8d59775cb1
+![455732448-641db5c1-fc53-4974-b549-1b8d59775cb1](https://github.com/user-attachments/assets/7c75b126-0060-4805-80a7-3f3b2b20eb84)
+
 
 🔜 Планы по развитию
 В разработке:
