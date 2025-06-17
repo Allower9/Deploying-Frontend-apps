@@ -32,6 +32,7 @@
 8) локально убедиться с помощью nginx в его работоспособности +
 9) Покупка домена и его настройка ( указание dns-серверов яндекс ) 
 10) создание на yandex cloud зону и в ней запись типа А с ipv4 load balancer(а)
-   Все работает
-12) ![image](https://github.com/user-attachments/assets/641db5c1-fc53-4974-b549-1b8d59775cb1)
+    
+12) Все работает
+ ![image](https://github.com/user-attachments/assets/641db5c1-fc53-4974-b549-1b8d59775cb1)
 
