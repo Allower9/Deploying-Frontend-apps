@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s      # Как часто собирать метрики
+  evaluation_interval: 15s  # Как часто проверять алерты
+
+scrape_configs:
+  # Мониторинг Node Exporter (CPU, RAM, Disk)
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["node-exporter:9100"]  # Имя сервиса из docker-compose
+
+  # Мониторинг frontend (если он отдает /metrics)
+  - job_name: "frontend"
+    metrics_path: "/metrics"       # Путь к метрикам (должен быть в приложении)
+    static_configs:
+      - targets: ["frontend:80"]  # Имя сервиса из docker-compose

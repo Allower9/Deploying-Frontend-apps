@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: allower99/frontend:latest
+    container_name: frontend
+    restart: always
+    ports:
+      - "80:80"

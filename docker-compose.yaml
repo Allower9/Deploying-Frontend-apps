@@ -1,9 +1,76 @@
-version: '3.8'
+version: '3.9'
 
 services:
+  # Frontend-приложение
   frontend:
-    image: allower99/frontend:latest
+    build: .
     container_name: frontend
-    restart: always
+    hostname: frontend
     ports:
       - "80:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - monitoring_net
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+    restart: unless-stopped
+    networks:
+      - monitoring_net
+    depends_on:
+      frontend:
+        condition: service_healthy
+      node-exporter:
+        condition: service_started
+
+  # Node Exporter
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+    networks:
+      - monitoring_net
+
+  # Grafana
+  grafana:
+    image: grafana/grafana
+    user: root
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    container_name: grafana
+    hostname: grafana
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - monitoring_net
+    depends_on:
+      prometheus:
+        condition: service_started
+
+networks:
+  monitoring_net:
+    driver: bridge
