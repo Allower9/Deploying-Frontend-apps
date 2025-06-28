@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - test
+      - test-dev
 
 jobs:
   build-and-push:
