@@ -68,7 +68,9 @@ https://github.com/user-attachments/assets/b5736c37-ee74-4067-913c-683c92184fa9
 11. Результат
 ![455732448-641db5c1-fc53-4974-b549-1b8d59775cb1](https://github.com/user-attachments/assets/7c75b126-0060-4805-80a7-3f3b2b20eb84)
 
-12. Создадим сертификат 
+### 12. Создадим сертификат SSL от LETS_ENCRYPT в самом яндексе
+- так по интрукции добавить запись в dns
+
 ### 13. создаем L7 балансер через визард
     
  ### создадим либо до либо уже при самой настройки целевые узлы (
@@ -81,7 +83,7 @@ https://github.com/user-attachments/assets/b5736c37-ee74-4067-913c-683c92184fa9
   ![telegram-cloud-photo-size-2-5382270299304751728-y](https://github.com/user-attachments/assets/7e0d5035-dc40-41b1-8f6d-7ce8c3b1eb91)
 
 ### 17. Итог 
-  ![telegram-cloud-photo-size-2-5382270299304751719-y](https://github.com/user-attachments/assets/27df0554-556e-48de-ac98-7a98a3044fe1)
+ ![2025-06-29 00 12 49](https://github.com/user-attachments/assets/ac26c33b-b755-40b0-9efb-796b264deaa8)
 
 
 
