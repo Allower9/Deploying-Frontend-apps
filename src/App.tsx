@@ -17,7 +17,7 @@ export const App = () => {
 
             <div style={{display: 'flex', gap: 15}}>
                 <Link to={'about'}>about77777</Link>
-                <Link to={'welcome'}>welcome</Link>
+                <Link to={'welcome'}>welcome-dudes</Link>
             </div>
 
             <Routes>
