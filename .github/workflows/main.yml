@@ -9,7 +9,7 @@ on:
       - test-dev
 
 jobs:
-  build-and-push:
+  build-and-push-frontend:
     runs-on: ubuntu-latest
 
     steps:
@@ -47,10 +47,41 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
           
+  build-and-push-backend:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Забираем код из репозитория
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Настраиваем Buildx (для мультиархитектурных сборок)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Логинимся в Docker Hub (или другой registry)
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 4. Собираем и пушим образ
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
+
+
+
+
+
       
 
   deploy-server-1:
-    needs: build-and-push
+    needs: build-and-push-backend
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH
@@ -70,7 +101,7 @@ jobs:
           EOF
           
   deploy-server-2:
-    needs: build-and-push
+    needs: build-and-push-backend
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH
