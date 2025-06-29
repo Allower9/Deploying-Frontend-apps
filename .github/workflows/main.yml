@@ -82,7 +82,9 @@ jobs:
       
 
   deploy-server-1:
-    needs: build-and-push-backend
+    needs: 
+      - build-and-push-backend
+      - build-and-push-frontend
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH
@@ -102,7 +104,9 @@ jobs:
           EOF
           
   deploy-server-2:
-    needs: build-and-push-backend
+    needs: 
+      - build-and-push-backend
+      - build-and-push-frontend
     runs-on: ubuntu-latest
     steps:
       - name: Setup SSH
