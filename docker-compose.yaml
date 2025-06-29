@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-  # Frontend-приложение
   frontend:
     image: allower99/frontend:latest
     container_name: frontend
@@ -10,16 +9,14 @@ services:
       - "80:80"
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
     networks:
-      - monitoring_net
       - frontend
-    depends_on:
-      - backend
-      
+      - backend  # Для доступа к backend
+
   backend:
     image: allower99/backend-app:latest
     container_name: backend
@@ -33,6 +30,7 @@ services:
       - backend
     depends_on:
       - db
+
   db:
     image: postgres:13
     environment:
@@ -41,10 +39,9 @@ services:
       - POSTGRES_DB=mydb
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
-
-    
-  # Prometheus
   prometheus:
     image: prom/prometheus
     volumes:
@@ -57,15 +54,12 @@ services:
     networks:
       - monitoring_net
     depends_on:
-      frontend:
-        condition: service_healthy
-      node-exporter:
-        condition: service_started
-    
+      - node-exporter
 
-  # Node Exporter
   node-exporter:
     image: prom/node-exporter
+    network_mode: host  # Для мониторинга хоста, а не контейнера
+    pid: host
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -73,15 +67,8 @@ services:
     command:
       - --path.procfs=/host/proc
       - --path.sysfs=/host/sys
-    ports:
-      - "9100:9100"
     restart: unless-stopped
-    networks:
-      - monitoring_net
-    depends_on:
-      grafana:
 
-  # Grafana
   grafana:
     image: grafana/grafana
     user: root
@@ -98,12 +85,15 @@ services:
     networks:
       - monitoring_net
     depends_on:
-      prometheus:
-        condition: service_started
+      - prometheus
 
 networks:
   monitoring_net:
     driver: bridge
-    
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
 volumes:
   postgres_data:
