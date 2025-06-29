@@ -85,16 +85,23 @@ https://github.com/user-attachments/assets/b5736c37-ee74-4067-913c-683c92184fa9
 ### 17. Итог 
  ![2025-06-29 00 12 49](https://github.com/user-attachments/assets/ac26c33b-b755-40b0-9efb-796b264deaa8)
 
+### окончательно перешел на docker-compose, в следствие появилась система мониторинга Prometheus + Grafana
+ - тут настройка ( просто скачал утилиту Prometheus и добавил в Dashdboards )
+![telegram-cloud-photo-size-2-5406967052746488988-y](https://github.com/user-attachments/assets/ba9f6dc2-c88b-4dc4-afce-6c0f5522a8db)
 
-
-
-    
+### вот фрагмент 
+![telegram-cloud-photo-size-2-5406967052746488993-y](https://github.com/user-attachments/assets/3efe90e3-4077-41e0-945c-44ecb322e55d)
+### Итоговый итог )
+![image](https://github.com/user-attachments/assets/8b1ceef8-dacc-471f-85b1-96154f87cea3)
 
 
 🔜 Планы по развитию
 В разработке:
 Добавление SSL-сертификата при переходе на L7 Load Balancer ✅
 
-Миграция на docker-compose ( частично )
+Миграция на docker-compose ✅
 
 Интеграция Grafana и Prometheus для мониторинга ✅
+
+бд - 
+backend -
