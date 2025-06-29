@@ -16,7 +16,17 @@ services:
       retries: 3
     networks:
       - monitoring_net
-
+      - frontend
+  backend:
+    image: allower99/backend-app:latest
+    container_name: backend
+    hostname: backend
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - backend
+    
   # Prometheus
   prometheus:
     image: prom/prometheus
