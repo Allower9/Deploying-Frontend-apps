@@ -1,4 +1,4 @@
-# Deploying-Frontend-apps
+# Deploying-Frontend-apps-
 # Deploying Frontend Apps: React + Nginx + CI/CD 🚀
 
 ## 📦 Технологический стек

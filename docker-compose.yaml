@@ -3,7 +3,7 @@ version: '3.9'
 services:
   # Frontend-приложение
   frontend:
-    build: .
+    image: allower99/frontend:latest
     container_name: frontend
     hostname: frontend
     ports:

@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - test
+      - test-dev
 
 jobs:
   build-and-push:
@@ -60,10 +61,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP_1 }} << 'EOF'
             cd /home/user1/Deploying-Frontend-apps
+            sudo docker-compose down -v
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-            sudo docker stop frontend || true
-            sudo docker rm frontend || true
-            sudo docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sudo docker-compose up -d
             echo "Deployment completed!"
             sudo docker ps
           EOF
@@ -80,9 +80,8 @@ jobs:
         run: |
             ssh -o StrictHostKeyChecking=no user1@${{ secrets.PROD_SERVER_IP_2 }} << 'EOF'
             cd /home/user1/Deploying-Frontend-apps
+            sudo docker-compose down -v
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend:latest
-            sudo docker stop frontend || true
-            sudo docker rm frontend || true
-            sudo docker run -d --name frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+            sudo docker-compose up -d
             echo "Deployment completed!"
             sudo docker ps
