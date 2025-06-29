@@ -106,3 +106,6 @@ https://github.com/user-attachments/assets/b5736c37-ee74-4067-913c-683c92184fa9
 - бд - 
 - backend -
 - добавить  FastCGI к nginx
+
+  -------
+  Что бы просто поднять на сервере ---> поставить docker, запулить код, docker-compose up -d
