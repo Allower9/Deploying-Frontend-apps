@@ -103,5 +103,6 @@ https://github.com/user-attachments/assets/b5736c37-ee74-4067-913c-683c92184fa9
 
 Интеграция Grafana и Prometheus для мониторинга ✅
 
-бд - 
-backend -
+- бд - 
+- backend -
+- добавить  FastCGI к nginx
