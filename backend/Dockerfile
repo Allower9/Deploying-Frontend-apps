@@ -2,7 +2,7 @@
 # Этап 1: сборка зависимостей
 FROM python:3.12 AS builder
 WORKDIR /app
-COPY requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --user --no-cache-dir -r requirements.txt
 
 # Этап 2: финальный образ
