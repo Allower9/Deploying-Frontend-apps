@@ -17,6 +17,9 @@ services:
     networks:
       - monitoring_net
       - frontend
+    depends_on:
+      - backend
+      
   backend:
     image: allower99/backend-app:latest
     container_name: backend
@@ -24,8 +27,22 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/mydb
     networks:
       - backend
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=mydb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
     
   # Prometheus
   prometheus:
@@ -44,6 +61,7 @@ services:
         condition: service_healthy
       node-exporter:
         condition: service_started
+    
 
   # Node Exporter
   node-exporter:
@@ -60,6 +78,8 @@ services:
     restart: unless-stopped
     networks:
       - monitoring_net
+    depends_on:
+      grafana:
 
   # Grafana
   grafana:
@@ -84,3 +104,6 @@ services:
 networks:
   monitoring_net:
     driver: bridge
+    
+volumes:
+  postgres_data:
