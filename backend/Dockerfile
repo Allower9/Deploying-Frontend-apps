@@ -1,6 +1,6 @@
 # backend/Dockerfile
 # Этап 1: сборка зависимостей
-FROM python:3.12 as builder
+FROM python:3.12 AS builder
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --user --no-cache-dir -r requirements.txt
